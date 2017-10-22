@@ -399,7 +399,7 @@ int isGameOver(struct gameState *state) {
 
   //if three supply pile are at 0, the game ends
   j = 0;
-  for (i = 0; i < 25; i++)
+  for (i = 0; i < 25; i++)  // BUG: The loop does not check all supply piles.
     {
       if (state->supplyCount[i] == 0)
 	{
@@ -651,7 +651,7 @@ void adventurerEffect(struct gameState *state, int currentPlayer)
     int cardDrawn;
     int z = 0;
 
-    while(drawntreasure<1){ // introduced bug, drawntreasure < 2 to drawntreasure < 1
+    while(drawntreasure<3){ // introduced bug, drawntreasure < 2 to drawntreasure < 3
   if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
     shuffle(currentPlayer, state);
   }
@@ -669,6 +669,7 @@ void adventurerEffect(struct gameState *state, int currentPlayer)
   state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
   z=z-1;
     }
+    //card is not being discarded
 }
 
 // Refactored Card Effect - Council Room
@@ -709,7 +710,7 @@ void smithyEffect(struct gameState *state, int currentPlayer, int handPos)
   }
 
     //discard card from hand
-    discardCard(handPos, currentPlayer, state, 0);
+    discardCard(handPos, currentPlayer, state, 0); // discard does not seem to be discarding
 }
 
 // Refactored Card Effect - Minion
@@ -774,11 +775,12 @@ void sea_hagEffect(struct gameState *state, int currentPlayer)
     int i;
 
     for (i = 0; i < state->numPlayers; i++){
-  if (i == currentPlayer){ //introduce bug, change from i != currentPlayer to i == currentPlayer
-    state->discard[i][state->discardCount[i]] = state->deck[i][state->deckCount[i]--];			    state->deckCount[i]--;
+  if (i != currentPlayer){ //introduce bug, change from i != currentPlayer to i == currentPlayer
+    state->discard[i][state->discardCount[i]] = state->deck[i][state->deckCount[i]--]; // bug, should be -1 instead of --
+    state->deckCount[i]--;
     state->discardCount[i]++;
     state->deck[i][state->deckCount[i]--] = curse;//Top card now a curse
-  }
+  }// bug, should be -1 instead of --
     }
 }
 
