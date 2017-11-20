@@ -1,0 +1,72 @@
+BUG #1
+
+ID      :   isGameOver() function
+Program :   dominion.c
+Summary :   Function does not end games when the back 3 supply piles are empty.
+
+Severity:   High, affects gameplay for ending games
+Priority:   High, may affect every game played
+
+Details :   The isGameOver() function does not end games when the back 3 supply
+            piles are empty.  This was found by running the unittest1 testing
+            program, which discovered that the function was not catching if
+            a Supply pile was zero when the card was at the end of the card
+            list.  Upon code inspection, the for loop in line 526 was found to
+            not be incrementing through all cards in the possible card list.  It
+            was search from card 0 to 24 when the cards are enumerated from 0 to
+            26, as seen in dominion.h.
+
+Tests   :   unittest1.c
+isGameOver() test: Back 1 Supply pile(s) empty - Game is not over
+Expected result: 0, Actual result: 0
+[PASS]
+isGameOver() test: Back 2 Supply pile(s) empty - Game is not over
+Expected result: 0, Actual result: 0
+[PASS]
+isGameOver() test: Back 3 Supply pile(s) empty - Game is over
+Expected result: 1, Actual result: 0
+[FAILED]
+
+Location:   line 525-536
+for (i = 0; i < 25; i++)
+  {
+    if (state->supplyCount[i] == 0)
+  {
+    j++;
+  }
+  }
+if ( j >= 3)
+  {
+    return 1;
+  }
+
+
+================================================================================
+BUG #2
+
+ID      :   adventurer_Effect() function
+Program :   dominion.c
+Summary :   Function draws three treasure instead fo two, which is an incorrect
+            behavior according to the card gameplay rules.
+
+Severity:   High, affects gameplay for the Adventurer card
+Priority:   High, may affect every game played
+
+Details :   The adventurer_Effect() function draws an incorrect number of
+            treasyre (3) when the card gameplay rules state that the player
+            should draw two.  This was found by running the cardtest2 testing
+            program, which discovered that the number of treasure in the
+            player's hand after playing was increased by three instead of two.
+            Upon code inspection, the for loop in line 18 was found to be
+            looping too many times due to drawnTreasure being initialized to 0,
+            yet stopping at drawnTreasure < 3, which is looping three times.
+
+Tests   :   cardtest2.c
+Treasure in hand: Previous  = 3, Current = 6, Expected = 5 [FAILED]
+Previous hand: 13 7 6 6 6 Current hand: 13 7 6 6 6 4 4 4
+
+Location:   line 18-36
+while(drawntreasure<3)
+{
+    ...
+}
